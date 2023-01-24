@@ -4,7 +4,7 @@ from django.db import models
 
 
 class Score(models.Model):
-    name = models.CharField(max_length=10, default='')
+    name = models.CharField(max_length=25, default='')
     number = models.IntegerField()
 
     def __int__(self):
