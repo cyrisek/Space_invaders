@@ -72,6 +72,7 @@ class Player {
 class Lives {
     constructor() {
         this.lives = lives
+        this.position = { x: 30, y: 900 };
         const image = new Image()
         image.src = heart
         image.onload = () => {
@@ -79,13 +80,10 @@ class Lives {
             this.image = image
             this.width = image.width * scale
             this.height = image.height * scale
-            this.position = {
-                x: 30,
-                y: 900
-            }
         }
     }
     draw() {
+        if(!this.image) return
         for (let i = 0; i < this.lives; i++) {
             ctx.drawImage(
                 this.image,
@@ -481,7 +479,7 @@ function animate() {
         grid.aliens.forEach((alien, i) => {
             alien.update({ velocity: grid.velocity })
             // Game Over when alien get to player position
-            if (alien.position.y >= player.position.y) {
+            if (alien && alien.position && alien.position.y >= player.position.y && player && player.position) {
                 setTimeout(() => {
                     grid.aliens.splice(i, 1)
                     player.opacity = 0
