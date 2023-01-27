@@ -83,7 +83,7 @@ class Lives {
         }
     }
     draw() {
-        if(!this.image) return
+        if (!this.image) return
         for (let i = 0; i < this.lives; i++) {
             ctx.drawImage(
                 this.image,
@@ -239,7 +239,7 @@ class Grid {
 
         const rows = Math.floor(Math.random() * 5 + 2)
         console.log(rows)
-        this.width = columns * 35
+        this.width = columns * 40
         for (let i = 0; i < columns; i++) {
             for (let j = 0; j < rows; j++) {
                 this.aliens.push(
@@ -262,7 +262,7 @@ class Grid {
 
         if (this.position.x + this.width >= canvas.width || this.position.x <= 0) {
             this.velocity.x = -this.velocity.x
-            this.velocity.y = 30
+            this.velocity.y = 40
         }
     }
 }
@@ -278,6 +278,7 @@ let projectiles = []
 let grids = []
 let alienProjectiles = []
 let particles = []
+
 
 const keys = {
     left: {
@@ -300,6 +301,7 @@ let game = {
 }
 let score = 0
 let shoot_timer = 300
+let shoot_cooldown = 50
 
 
 //  Innit function
@@ -314,6 +316,7 @@ function Innit() {
     particles = []
     score = 0
     shoot_timer = 300
+    shoot_cooldown = 25
     frames = 0
     randomInterval = Math.floor((Math.random() * 1000) + 3000)
     game = {
@@ -341,6 +344,11 @@ function Innit() {
 
 
 }
+function decreaseShootCooldown() {
+    if (shoot_cooldown > 0) {
+        shoot_cooldown -= 1;
+    }
+}
 // Create particles Function
 function Create_particles({ object, color, fades }) {
     for (let i = 0; i < 15; i++) {
@@ -366,7 +374,7 @@ function laser_shot() {
     projectiles.push(
         new Projectile({
             position: {
-                x: player.position.x + player.width / 2,
+                x: player.position.x + (player.width / 2) - 2.5,
                 y: player.position.y
             },
             velocity: {
@@ -384,6 +392,7 @@ function animate() {
     ctx.fillStyle = '#010203'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     player.update(ctx)
+    decreaseShootCooldown()
     player_lives.update()
     particles.forEach((particle, i) => {
 
@@ -479,7 +488,7 @@ function animate() {
         grid.aliens.forEach((alien, i) => {
             alien.update({ velocity: grid.velocity })
             // Game Over when alien get to player position
-            if (alien && alien.position && alien.position.y >= player.position.y && player && player.position) {
+            if (alien && alien.position && alien.position.y + alien.height >= player.position.y && player && player.position + player.height) {
                 setTimeout(() => {
                     grid.aliens.splice(i, 1)
                     player.opacity = 0
@@ -501,7 +510,7 @@ function animate() {
             }
             // Alien Hitbox
             projectiles.forEach((projectile, j) => {
-                if (projectile.position.x >= (alien.position.x - alien.width / 2) && projectile.position.x <= (alien.position.x + alien.width / 2) && projectile.position.y <= (alien.position.y + alien.height) && projectile.position.y >= (alien.position.y - alien.height)) {
+                if (projectile && projectile.position && projectile.position.x >= (alien && alien.position && alien.position.x - alien.width / 2) && projectile.position.x <= (alien.position.x + alien.width / 2) && projectile && projectile.position && projectile.position.y <= (alien && alien.position && alien.position.y + alien.height) && projectile.position.y >= (alien.position.y - alien.height)) {
 
                     // Removing alien from the grid that was shot
                     setTimeout(() => {
@@ -574,10 +583,12 @@ addEventListener('keydown', ({ key }) => {
             keys.right.down = true
             break
         case ' ':
+            if (shoot_cooldown > 0) return;
             // console.log("space")
             keys.space.down = true
             laser_shot()
             laser.play()
+            shoot_cooldown = 25
             // console.log(projectiles)
             break
     }
