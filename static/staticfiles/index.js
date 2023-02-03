@@ -187,19 +187,22 @@ class Alien {
                 x: position.x,
                 y: position.y
             }
+            this.imageLoaded = true;
         }
     }
     draw() {
-        ctx.drawImage(
-            this.image,
-            this.position.x,
-            this.position.y,
-            this.width,
-            this.height
-        )
+        if (this.imageLoaded) {
+            ctx.drawImage(
+                this.image,
+                this.position.x,
+                this.position.y,
+                this.width,
+                this.height
+            )
+        }
     }
     update({ velocity }) {
-        if (this.image) {
+        if (this.imageLoaded) {
             this.draw()
             this.position.x += velocity.x
             this.position.y += velocity.y
