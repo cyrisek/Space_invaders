@@ -215,7 +215,7 @@ class Alien {
                 },
                 velocity: {
                     x: 0,
-                    y: 2
+                    y: 4
                 }
             }))
     }
@@ -229,7 +229,7 @@ class Grid {
             y: 0
         }
         this.velocity = {
-            x: 3,
+            x: 4,
             y: 0
         }
         this.aliens = []
@@ -263,6 +263,13 @@ class Grid {
         if (this.position.x + this.width >= canvas.width || this.position.x <= 0) {
             this.velocity.x = -this.velocity.x
             this.velocity.y = 40
+            if (this.velocity.x > 0) {
+                this.velocity.x = this.velocity.x + 0.25
+            } else {
+                this.velocity.x = this.velocity.x - 0.25
+            }
+
+
         }
     }
 }
@@ -379,7 +386,7 @@ function laser_shot() {
             },
             velocity: {
                 x: 0,
-                y: -10,
+                y: -20,
             }
         })
     )
@@ -472,10 +479,15 @@ function animate() {
         grid.update()
 
         // Spawn projectiles
+
         if (frames % shoot_timer === 0 && grid.aliens.length > 0) {
-            grid.aliens[Math.floor(Math.random() * grid.aliens.length)].shoot(
-                alienProjectiles
-            )
+            num_of_shots = Math.floor((Math.random() * 3) + 1)
+            console.log(num_of_shots)
+            for (let i = 0; i < num_of_shots; i++) {
+                grid.aliens[Math.floor(Math.random() * grid.aliens.length)].shoot(
+                    alienProjectiles
+                )
+            }
             // Enemies each time shoot sooner
             if (shoot_timer > 50) {
                 shoot_timer -= 4
@@ -485,6 +497,7 @@ function animate() {
             }
 
         }
+
         grid.aliens.forEach((alien, i) => {
             alien.update({ velocity: grid.velocity })
             // Game Over when alien get to player position
@@ -561,7 +574,12 @@ function animate() {
         player.rotation = 0
     }
     // random number of when next Grid is going to get spawn
-    if (frames % randomInterval === 0) {
+    if (grids.length === 0) {
+        grids.push(new Grid())
+        randomInterval = Math.floor((Math.random() * 1000) + 3000)
+        frames = 0
+        console.log(randomInterval)
+    } else if (frames % randomInterval === 0) {
         grids.push(new Grid())
         randomInterval = Math.floor((Math.random() * 1000) + 3000)
         frames = 0
@@ -588,7 +606,7 @@ addEventListener('keydown', ({ key }) => {
             keys.space.down = true
             laser_shot()
             laser.play()
-            shoot_cooldown = 25
+            shoot_cooldown = 20
             // console.log(projectiles)
             break
     }
