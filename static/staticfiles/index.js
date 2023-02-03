@@ -237,20 +237,28 @@ class Grid {
         const rows = Math.floor(Math.random() * 5 + 2)
         console.log(rows)
         this.width = columns * 40
+
+        // Create an array of promises, one for each alien
+        const alienLoadPromises = []
         for (let i = 0; i < columns; i++) {
             for (let j = 0; j < rows; j++) {
-                this.aliens.push(
-                    new Alien({
-                        position: {
-                            // spacing between aliens
-                            x: i * 40,
-                            y: j * 40,
-                        }
-                    })
-                )
+                const alien = new Alien({
+                    position: {
+                        x: i * 40,
+                        y: j * 40,
+                    }
+                })
+                this.aliens.push(alien)
+                alienLoadPromises.push(alien.imageLoadPromise)
             }
         }
+
+        // Wait for all of the aliens to be fully loaded
+        Promise.all(alienLoadPromises).then(() => {
+            // All aliens have been fully loaded
+        })
     }
+
     update() {
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
@@ -265,11 +273,10 @@ class Grid {
             } else {
                 this.velocity.x = this.velocity.x - 0.25
             }
-
-
         }
     }
 }
+
 // Game Variables
 const dmg = new Audio(losing_lives);
 const laser = new Audio(laser_sound);
