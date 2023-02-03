@@ -485,12 +485,15 @@ function animate() {
         // Spawn projectiles
 
         if (frames % shoot_timer === 0 && grid.aliens.length > 0) {
+            let alreadyShot = [];
             num_of_shots = Math.floor((Math.random() * 3) + 1)
             console.log(num_of_shots)
             for (let i = 0; i < num_of_shots; i++) {
-                grid.aliens[Math.floor(Math.random() * grid.aliens.length)].shoot(
-                    alienProjectiles
-                )
+                let selectedAlien = grid.aliens[Math.floor(Math.random() * grid.aliens.length)];
+                if (!alreadyShot.includes(selectedAlien)) {
+                    alreadyShot.push(selectedAlien);
+                    selectedAlien.shoot(alienProjectiles);
+                }
             }
             // Enemies each time shoot sooner
             if (shoot_timer > 50) {
@@ -499,7 +502,6 @@ function animate() {
                 // time cap on shoot
                 shoot_timer = 50
             }
-
         }
 
         grid.aliens.forEach((alien, i) => {
