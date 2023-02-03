@@ -225,7 +225,7 @@ class Alien {
 class Grid {
     constructor() {
         this.position = {
-            x: 0,
+            x: 20,
             y: 0
         }
         this.velocity = {
@@ -564,10 +564,10 @@ function animate() {
     })
     // Player movement
     if (keys.left.down && player.position.x >= 0) {
-        player.velocity.x = -5
+        player.velocity.x = -10
         player.rotation = -0.15
     } else if (keys.right.down && player.position.x + player.width <= canvas.width) {
-        player.velocity.x = 5
+        player.velocity.x = 10
         player.rotation = 0.15
     } else {
         player.velocity.x = 0
@@ -587,27 +587,31 @@ function animate() {
     }
     frames++
 }
+let shooting = false
 
-// event listeners for key down
-addEventListener('keydown', ({ key }) => {
-    if (game.over) return
+function shoot_cd() {
+    if (shoot_cooldown === 0) {
+        laser_shot()
+        laser.play()
+        shoot_cooldown = 20
+    }
+}
+
+window.addEventListener('keydown', ({ key }) => {
     switch (key) {
         case 'ArrowLeft':
-            // console.log("left")
             keys.left.down = true
             break
         case 'ArrowRight':
-            // console.log("right")
             keys.right.down = true
             break
         case ' ':
-            if (shoot_cooldown > 0) return;
-            // console.log("space")
             keys.space.down = true
-            laser_shot()
-            laser.play()
-            shoot_cooldown = 20
-            // console.log(projectiles)
+            if (lives === 0) {
+                shooting = false
+            } else {
+                shooting = true
+            }
             break
     }
 })
@@ -625,9 +629,15 @@ addEventListener('keyup', ({ key }) => {
         case ' ':
             // console.log("space")
             keys.space.down = false
+            shooting = false
             break
     }
 })
+setInterval(() => {
+    if (shooting) {
+        shoot_cd()
+    }
+}, 0)
 // save score into the database
 document.querySelector('#post_score').onclick = new_score;
 function new_score() {
