@@ -175,22 +175,23 @@ class Alien {
             x: 0,
             y: 0
         }
+        const image = new Image()
         let random = Math.floor(Math.random() * enemy.length)
-        this.image = new Promise((resolve, reject) => {
-            let image = new Image()
-            image.src = enemy[random]
-            image.onload = () => resolve(image)
-            image.onerror = reject
-        })
-        this.position = position
+        image.src = enemy[random]
+        image.onload = () => {
+            const scale = 1
+            this.image = image
+            this.width = image.width * scale
+            this.height = image.height * scale
+            this.position = {
+                x: position.x,
+                y: position.y
+            }
+        }
     }
-    async draw() {
-        const image = await this.image
-        const scale = 1
-        this.width = image.width * scale
-        this.height = image.height * scale
+    draw() {
         ctx.drawImage(
-            image,
+            this.image,
             this.position.x,
             this.position.y,
             this.width,
@@ -198,9 +199,11 @@ class Alien {
         )
     }
     update({ velocity }) {
-        this.draw()
-        this.position.x += velocity.x
-        this.position.y += velocity.y
+        if (this.image) {
+            this.draw()
+            this.position.x += velocity.x
+            this.position.y += velocity.y
+        }
     }
     //  Shooting Function
     shoot(alienProjectiles) {

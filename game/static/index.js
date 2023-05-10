@@ -4,6 +4,7 @@ const scoreElement = document.querySelector('#scoreElement')
 const ctx = canvas.getContext('2d')
 const start = document.querySelector('#start_game')
 let menu = document.querySelector('#menu')
+let message = document.querySelector('#response')
 
 
 canvas.width = 900;
@@ -232,10 +233,8 @@ class Grid {
         this.aliens = []
 
         const columns = Math.floor(Math.random() * 5 + 5)
-        console.log(columns)
 
         const rows = Math.floor(Math.random() * 5 + 2)
-        console.log(rows)
         this.width = columns * 40
 
         // Create an array of promises, one for each alien
@@ -322,10 +321,12 @@ function Innit() {
     player = new Player()
     projectiles = []
     grids = []
+    message.innerHTML = ""
 
     alienProjectiles = []
     particles = []
     score = 0
+    scoreElement.innerHTML = 0
     shoot_timer = 300
     shoot_cooldown = 25
     frames = 0
@@ -440,7 +441,6 @@ function animate() {
                 setTimeout(() => {
                     game.active = false
                 }, 2000)
-                console.log('you lost the game')
                 game_over.play();
                 lives--;
                 player_lives.update()
@@ -487,7 +487,6 @@ function animate() {
         if (frames % shoot_timer === 0 && grid.aliens.length > 0) {
             let alreadyShot = [];
             num_of_shots = Math.floor((Math.random() * 3) + 1)
-            console.log(num_of_shots)
             for (let i = 0; i < num_of_shots; i++) {
                 let selectedAlien = grid.aliens[Math.floor(Math.random() * grid.aliens.length)];
                 if (!alreadyShot.includes(selectedAlien)) {
@@ -516,7 +515,6 @@ function animate() {
                 setTimeout(() => {
                     game.active = false
                 }, 2000)
-                console.log('you lost the game')
                 game_over.play();
                 menu.style.display = 'block';
                 menu.style.visibility = 'visible';
@@ -540,7 +538,6 @@ function animate() {
 
                         if (alienFound && projectileFound) {
                             score += 15
-                            console.log(score)
                             scoreElement.innerHTML = score
                             hit.play()
                             Create_particles({
@@ -584,12 +581,10 @@ function animate() {
         grids.push(new Grid())
         randomInterval = Math.floor((Math.random() * 1000) + 3000)
         frames = 0
-        console.log(randomInterval)
     } else if (frames % randomInterval === 0) {
         grids.push(new Grid())
         randomInterval = Math.floor((Math.random() * 1000) + 3000)
         frames = 0
-        console.log(randomInterval)
     }
     frames++
 }
@@ -648,9 +643,6 @@ setInterval(() => {
 document.querySelector('#post_score').onclick = new_score;
 function new_score() {
     const new_user = document.querySelector('#username').value;
-    console.log(new_user);
-    console.log(score);
-
     fetch('/new_score', {
         method: 'POST',
         body: JSON.stringify({
@@ -661,8 +653,22 @@ function new_score() {
 
         .then(response => response.json())
         .then(response => {
-            console.log(response)
+            if (response.error) {
+                // Handle error response
+                console.error(response.error);
+                message.innerHTML = response.error;
+            } else {
+                // Handle success response
+                console.log(response.message);
+                message.innerHTML = response.message;
+            }
+        })
+        .catch(error => {
+            // Handle network error
+            console.error(error);
+            message.innerHTML = "Network error. Please try again later.";
         });
-    location.reload();
+    score = 0
+    scoreElement.innerHTML = 0
     return false;
 }

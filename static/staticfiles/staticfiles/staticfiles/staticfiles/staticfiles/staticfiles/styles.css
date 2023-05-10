@@ -21,9 +21,7 @@ body {
     position: relative;
     height: 100vh;
 }
-.container h5{
-    max-width: 600px;
-}
+
 canvas {
     position: absolute;
     z-index: 1;
