@@ -641,10 +641,15 @@ setInterval(() => {
 }, 0)
 // save score into the database
 document.querySelector('#post_score').onclick = new_score;
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 function new_score() {
     const new_user = document.querySelector('#username').value;
     fetch('/new_score', {
         method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+        },
         body: JSON.stringify({
             name: new_user,
             number: score
@@ -654,12 +659,13 @@ function new_score() {
         .then(response => response.json())
         .then(response => {
             if (response.error) {
+                const firstKey = Object.keys(response.error)[0];
+                const firstValue = response.error[firstKey];
                 // Handle error response
-                console.error(response.error);
-                message.innerHTML = response.error;
+                message.innerHTML = firstValue;
             } else {
                 // Handle success response
-                console.log(response.message);
+                console.log(response.message)
                 message.innerHTML = response.message;
             }
         })
