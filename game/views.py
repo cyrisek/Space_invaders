@@ -19,7 +19,6 @@ class IndexView(FormMixin, ListView):
     form_class = ScoreForm
 
 
-@csrf_exempt
 def new_score(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."})

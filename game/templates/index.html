@@ -56,8 +56,8 @@
                 <button  type="submit" class="btn btn-primary col-3">Post Score</button>
             </div> -->
             <form method="POST" id="post_score">
-                {% csrf_token %}
                 <div class="form-group row d-flex justify-content-center mt-4">
+                    {% csrf_token %}
                     {{ form.name }}
                     <button type="submit" class="btn btn-primary col-3">Post Score</button>
                 </div>
