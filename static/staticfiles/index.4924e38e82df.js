@@ -213,7 +213,7 @@ class Alien {
                 },
                 velocity: {
                     x: 0,
-                    y: 4
+                    y: 3
                 }
             }))
     }
@@ -227,7 +227,7 @@ class Grid {
             y: 0
         }
         this.velocity = {
-            x: 4,
+            x: 2,
             y: 0
         }
         this.aliens = []
@@ -328,7 +328,7 @@ function Innit() {
     score = 0
     scoreElement.innerHTML = 0
     shoot_timer = 300
-    shoot_cooldown = 25
+    shoot_cooldown = 50
     frames = 0
     randomInterval = Math.floor((Math.random() * 1000) + 3000)
     game = {
@@ -391,7 +391,7 @@ function laser_shot() {
             },
             velocity: {
                 x: 0,
-                y: -20,
+                y: -6,
             }
         })
     )
@@ -567,10 +567,10 @@ function animate() {
     })
     // Player movement
     if (keys.left.down && player.position.x >= 0) {
-        player.velocity.x = -10
+        player.velocity.x = -4
         player.rotation = -0.15
     } else if (keys.right.down && player.position.x + player.width <= canvas.width) {
-        player.velocity.x = 10
+        player.velocity.x = 4
         player.rotation = 0.15
     } else {
         player.velocity.x = 0
@@ -594,7 +594,7 @@ function shoot_cd() {
     if (shoot_cooldown === 0) {
         laser_shot()
         laser.play()
-        shoot_cooldown = 20
+        shoot_cooldown = 50
     }
 }
 
@@ -640,11 +640,14 @@ setInterval(() => {
     }
 }, 0)
 // save score into the database
-document.querySelector('#post_score').onclick = new_score;
+const scoreForm = document.getElementById('post_score');
+scoreForm.addEventListener('submit', new_score);
+// document.querySelector('#post_score').onclick = new_score;
 const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-function new_score() {
+async function new_score(event) {
+    event.preventDefault();
     const new_user = document.querySelector('#username').value;
-    fetch('/new_score', {
+    const response = await fetch('/new_score', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -654,26 +657,25 @@ function new_score() {
             name: new_user,
             number: score
         })
-    })
+    });
 
-        .then(response => response.json())
-        .then(response => {
-            if (response.error) {
-                const firstKey = Object.keys(response.error)[0];
-                const firstValue = response.error[firstKey];
-                // Handle error response
-                message.innerHTML = firstValue;
-            } else {
-                // Handle success response
-                console.log(response.message)
-                message.innerHTML = response.message;
-            }
-        })
-        .catch(error => {
-            // Handle network error
-            console.error(error);
-            message.innerHTML = "Network error. Please try again later.";
-        });
+    try {
+        const jsonResponse = await response.json();
+        if (jsonResponse.error) {
+            const firstKey = Object.keys(jsonResponse.error)[0];
+            const firstValue = jsonResponse.error[firstKey];
+            // Handle error response
+            message.innerHTML = firstValue;
+        } else {
+            // Handle success response
+            console.log(jsonResponse.message)
+            message.innerHTML = jsonResponse.message;
+        }
+    } catch (error) {
+        // Handle network error
+        console.error(error);
+        message.innerHTML = "Network error. Please try again later.";
+    }
     score = 0
     scoreElement.innerHTML = 0
     return false;
